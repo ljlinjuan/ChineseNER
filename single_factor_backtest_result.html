@@ -1,0 +1,182 @@
+<html>
+
+<head>
+    <title>{{ title }}</title>
+    <style>
+        .grid-container {
+            display: grid;
+            text-align: center;
+            grid-template-columns: repeat(2, 48vw);
+            gap: 10px;
+        }
+        .border {
+            border: 1px solid;
+            border-radius: 4px;
+            border-color: rgb(189, 167, 167);
+            height: 48vh;
+            max-height: 480px;
+        }
+        .chart_title {
+			margin: 0.5%;
+		}
+        .chart{
+            height: 100%;
+            margin: 1%;
+        }
+        td {
+			vertical-align: bottom;
+			padding-left:10px;
+		}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.1/dist/echarts.min.js"></script>
+</head>
+
+<body>
+    <h1 style="text-align:center">{{ title }}</h1>
+    <div class="grid-container">
+        <div class="border" style="grid-row:1; grid-column:1;">
+            <table style="margin: 5% auto;">
+                <tbody>
+                    <tr>
+                        <td>Factor First Not NaN Date<br/>(start date for following calcualtions):</td>
+                        <td>{{ factor_first_not_nan_date }}</td>
+                    </tr>
+                    <tr>
+                        <td>IC Mean:</td>
+                        <td>{{ "%.6f"|format(ic_mean) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Rank IC Mean:</td>
+                        <td>{{ "%.6f"|format(rank_ic_mean) }}</td>
+                    </tr>
+                    <tr>
+                        <td>ICIR:</td>
+                        <td>{{ "%.6f"|format(icir) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <table style="margin: 5% auto; text-align: left;">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Anualized Return Mean</th>
+                        <th>Anualized Return Vol</th>
+                        <th>Anualized Sharpe Ratio</th>
+                      </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Long Short</th>
+                        <td>{{ "%.4f"|format(annulized_long_short_return_mean) }}</td>
+                        <td>{{ "%.4f"|format(annulized_long_short_return_std) }}</td>
+                        <td>{{ "%.4f"|format(annulized_long_short_sharpe_ratio) }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Top Hedge HS300</th>
+                        <td>{{ "%.4f"|format(annulized_top_hedge_hs300_return_mean) }}</td>
+                        <td>{{ "%.4f"|format(annulized_top_hedge_hs300_return_std) }}</td>
+                        <td>{{ "%.4f"|format(annulized_top_hedge_hs300_sharpe_ratio) }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Top Hedge CSI500</th>
+                        <td>{{ "%.4f"|format(annulized_top_hedge_csi500_return_mean) }}</td>
+                        <td>{{ "%.4f"|format(annulized_top_hedge_csi500_return_std) }}</td>
+                        <td>{{ "%.4f"|format(annulized_top_hedge_csi500_sharpe_ratio) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="border" style="grid-row:1; grid-column:2;">
+            <div class="chart_title">Factor Coverage Ratio</div>
+            <div id="coverage_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:2; grid-column:1;">
+            <div class="chart_title">Groups Daily Compound NAV</div>
+            <div id="groups_daily_compound_net_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:2; grid-column:2;">
+            <div class="chart_title">Groups Daily Sum NAV</div>
+            <div id="groups_daily_sum_net_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:3; grid-column:1;">
+            <div class="chart_title">Long Short Daily Compound NAV and MDD</div>
+            <div id="long_short_group_daily_compound_net_and_mdd_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:3; grid-column:2;">
+            <div class="chart_title">Long Short Daily Sum NAV and MDD</div>
+            <div id="long_short_group_daily_sum_net_and_mdd_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:4; grid-column:1;">
+            <div class="chart_title">Top Group Hedge HS300 Index Daily Compound NAV and MDD</div>
+            <div id="top_group_hedge_hs300_index_daily_compound_net_and_mdd_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:4; grid-column:2;">
+            <div class="chart_title">Top Group Hedge HS300 Index Daily Sum NAV and MDD</div>
+            <div id="top_group_hedge_hs300_index_daily_sum_net_and_mdd_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:5; grid-column:1;">
+            <div class="chart_title">Top Group Hedge CSI500 Index Daily Compound NAV and MDD</div>
+            <div id="top_group_hedge_csi500_index_daily_compound_net_and_mdd_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:5; grid-column:2;">
+            <div class="chart_title">Top Group Hedge CSI500 Index Daily Sum NAV and MDD</div>
+            <div id="top_group_hedge_csi500_index_daily_sum_net_and_mdd_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:7; grid-column:1;">
+            <div class="chart_title">Long Short Monthly Return (%)</div>
+            <div id="long_short_group_monthly_return_heatmap_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:7; grid-column:2;">
+            <div class="chart_title">Linear Neutralization Average Coefficients</div>
+            <div id="linear_neutralization_average_coefficients_chart" class="chart">
+                Factor is not linear neutralized
+            </div>
+        </div>
+        <div class="border" style="grid-row:8; grid-column:1;">
+            <div class="chart_title">Groups Annual Return (%)</div>
+            <div id="groups_annual_return_bar_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:8; grid-column:2;">
+            <div class="chart_title">Groups Monthly Average Return (%)</div>
+            <div id="groups_monthly_average_return_bar_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:9; grid-column:1;">
+            <div class="chart_title">Moving Daily IC</div>
+            <div id="ic_daily_moving_bar_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:9; grid-column:2;">
+            <div class="chart_title">Moving Daily Rank IC</div>
+            <div id="rank_ic_daily_moving_bar_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:10; grid-column:1;">
+            <div class="chart_title">IC in Days Bucket</div>
+            <div id="ic_in_days_bucket_bar_chart" class="chart"></div>
+        </div>
+        <div class="border" style="grid-row:10; grid-column:2;">
+            <div class="chart_title">Rank IC in Days Bucket</div>
+            <div id="rank_ic_in_days_bucket_bar_chart" class="chart"></div>
+        </div>
+    </div>
+    <script>
+        {{ coverage_chart_config | safe }}
+        {{ groups_daily_compound_net_chart_config | safe }}
+        {{ groups_daily_sum_net_chart_config | safe }}
+        {{ long_short_group_daily_compound_net_and_mdd_chart_config | safe }}
+        {{ long_short_group_daily_sum_net_and_mdd_chart_config | safe }}
+        {{ top_group_hedge_hs300_index_daily_compound_net_and_mdd_chart_config | safe }}
+        {{ top_group_hedge_hs300_index_daily_sum_net_and_mdd_chart_config | safe }}
+        {{ top_group_hedge_csi500_index_daily_compound_net_and_mdd_chart_config | safe }}
+        {{ top_group_hedge_csi500_index_daily_sum_net_and_mdd_chart_config | safe }}
+        {{ long_short_group_monthly_return_heatmap_chart_config | safe }}
+        {{ linear_neutralization_average_coefficients_chart_config | safe }}
+        {{ groups_annual_return_bar_chart_config | safe }}
+        {{ groups_monthly_average_return_bar_chart_config | safe }}
+        {{ ic_daily_moving_bar_chart_config | safe }}
+        {{ rank_ic_daily_moving_bar_chart_config | safe }}
+        {{ ic_in_days_bucket_bar_chart_config | safe }}
+        {{ rank_ic_in_days_bucket_bar_chart_config | safe }}
+    </script>
+</body>
+
+</html>
